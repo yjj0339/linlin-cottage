@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e6efe7">
+  <meta name="description" content="在霖林小屋住一会儿。探索向日葵花田、林间小动物和溪流，自由切换晴日、晨雾、细雨、日落与星夜。">
+  <title>霖林小屋 · 林间四时</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='22' fill='%23e3eddc'/%3E%3Cpath d='M17 50 40 24 63 50M26 44v22h28V44' fill='none' stroke='%2339533d' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+  <main id="world" aria-label="可拖动旋转和缩放的三维森林小屋"></main>
+  <div class="shade"></div>
+  <header class="brand">
+    <div class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M9 26 20 13 31 26M13 23v12h14V23M20 35v-8M9 17V5m0 4-5 5m5-2 5 5M31 17V3m0 5 5 5m-5-2-5 6"/></svg></div>
+    <div><h1>霖林小屋<span>林间四时</span></h1><p>小憩片刻，让风路过。</p></div>
+  </header>
+  <nav class="tools glass" aria-label="场景工具">
+    <button id="sound" aria-label="开启自然声音" title="自然声音" aria-pressed="false" data-icon="sound"></button>
+    <button id="photo" aria-label="拍摄场景照片" title="保存照片" data-icon="camera"></button>
+    <button id="fullscreen" aria-label="全屏浏览" title="全屏" data-icon="fullscreen"></button>
+    <button id="hide" aria-label="隐藏界面" title="沉浸模式 · H" data-icon="hide"></button>
+  </nav>
+  <button id="restore" class="glass" aria-label="显示界面">显示界面 <span>H</span></button>
+  <aside class="weather glass" aria-label="天气选择">
+    <div class="panel-label">此刻的森林</div>
+    <button data-weather="sunny" aria-pressed="true"><i data-icon="sun"></i><span>晴日</span><small>微风和煦</small></button>
+    <button data-weather="fog" aria-pressed="false"><i data-icon="fog"></i><span>晨雾</span><small>云雾轻绕</small></button>
+    <button data-weather="rain" aria-pressed="false"><i data-icon="rain"></i><span>细雨</span><small>听雨落下</small></button>
+    <button data-weather="sunset" aria-pressed="false"><i data-icon="sunset"></i><span>日落</span><small>一地金光</small></button>
+    <button data-weather="night" aria-pressed="false"><i data-icon="moon"></i><span>星夜</span><small>萤火入梦</small></button>
+    <div class="wind-control"><label for="wind">风的轻重 <output id="wind-value">轻柔</output></label><input id="wind" aria-label="风力" type="range" min="0" max="1" value=".35" step=".01"></div>
+  </aside>
+  <section class="moment" aria-live="polite">
+    <div class="season"><span class="status-dot"></span><span id="moment-tag">林间晴日</span><span class="small-line"></span><span id="moment-time">09:40</span></div>
+    <h2 id="moment-title">阳光，落在花瓣上。</h2>
+    <p id="moment-description">向日葵迎着微风，蜜蜂正忙着收集今天的甜。</p>
+    <button id="field-guide" class="guide-link"><i data-icon="leaf"></i> 认识林间邻居 <span>↗</span></button>
+  </section>
+  <footer class="bottom">
+    <div class="view-controls glass" role="group" aria-label="观察位置">
+      <button data-view="home" aria-pressed="true"><i data-icon="home"></i><span>小屋全景</span></button>
+      <button data-view="flowers" aria-pressed="false"><i data-icon="flower"></i><span>走进花田</span></button>
+      <button data-view="animals" aria-pressed="false"><i data-icon="bird"></i><span>树梢邻居</span></button>
+      <button data-view="stream" aria-pressed="false"><i data-icon="water"></i><span>溪边小坐</span></button>
+      <span class="separator"></span><button id="tour" class="square" aria-label="开始环绕漫游" title="环绕漫游" aria-pressed="false" data-icon="play"></button>
+      <button id="pause" class="square" aria-label="暂停场景动画" title="暂停动画" aria-pressed="false" data-icon="pause"></button>
+    </div>
+    <p class="hint"><span>拖动旋转</span><span>滚轮缩放</span><span>点击动物打个招呼</span></p>
+  </footer>
+  <div id="animal-card" class="glass" hidden><button class="close" id="close-animal" aria-label="关闭">×</button><span id="animal-kind"></span><h3 id="animal-name"></h3><p id="animal-description"></p></div>
+  <dialog id="guide" class="glass">
+    <button id="close-guide" class="close" aria-label="关闭图鉴">×</button>
+    <span class="dialog-label">霖林观察手记</span><h2>住在这里的朋友</h2><p class="guide-intro">选一个邻居，靠近看看。也可以直接点击场景中的动物。</p>
+    <div id="guide-list"></div><p class="guide-foot">森林的每一刻，都值得慢一点。</p>
+  </dialog>
+  <div id="toast" role="status"></div>
+  <div id="loader"><svg viewBox="0 0 60 60"><path d="M15 38 30 19 45 38M21 32v19h18V32M30 51V40"/></svg><h2>霖林小屋</h2><p>正在推开森林的门…</p><div class="loading-line"></div></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
